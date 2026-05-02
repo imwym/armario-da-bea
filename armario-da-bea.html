@@ -833,6 +833,7 @@
       <span class="filter-label">Filtrar:</span>
       <button class="filter-btn active" onclick="filterClothes('all', this)">Todas</button>
       <button class="filter-btn" onclick="filterClothes('Tops', this)">Tops</button>
+      <button class="filter-btn" onclick="filterClothes('Camisa', this)">Camisa</button>
       <button class="filter-btn" onclick="filterClothes('Calças', this)">Calças</button>
       <button class="filter-btn" onclick="filterClothes('Vestidos', this)">Vestidos</button>
       <button class="filter-btn" onclick="filterClothes('Saias', this)">Saias</button>
@@ -958,15 +959,14 @@
         <select class="form-select" id="f-cat">
           <option value="">Selecione...</option>
           <option>Tops</option>
+          <option>Camisa</option>
           <option>Calças</option>
           <option>Vestidos</option>
           <option>Saias</option>
           <option>Casacos</option>
           <option>Shorts</option>
-          <option>Macacão</option>
           <option>Acessórios</option>
           <option>Calçados</option>
-          <option>Lingerie</option>
           <option>Pijamas</option>
         </select>
       </div>
@@ -1020,32 +1020,7 @@
         <span class="tag-option" onclick="toggleTag(this,'cor')">Estampado</span>
       </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Estilo</label>
-      <div class="tags-selector" id="estilo-tags">
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">🌸 Romântico</span>
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">⚡ Moderno</span>
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">🎀 Feminino</span>
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">🖤 Básico</span>
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">🌿 Boho</span>
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">👑 Elegante</span>
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">🎽 Esportivo</span>
-        <span class="tag-option" onclick="toggleTag(this,'estilo')">🌞 Praia</span>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Material</label>
-      <div class="tags-selector" id="material-tags">
-        <span class="tag-option" onclick="toggleTag(this,'material')">Algodão</span>
-        <span class="tag-option" onclick="toggleTag(this,'material')">Linho</span>
-        <span class="tag-option" onclick="toggleTag(this,'material')">Jeans</span>
-        <span class="tag-option" onclick="toggleTag(this,'material')">Seda</span>
-        <span class="tag-option" onclick="toggleTag(this,'material')">Sintético</span>
-        <span class="tag-option" onclick="toggleTag(this,'material')">Tricô/Lã</span>
-        <span class="tag-option" onclick="toggleTag(this,'material')">Couro/PU</span>
-        <span class="tag-option" onclick="toggleTag(this,'material')">Viscose</span>
-      </div>
-    </div>
+
     <div class="form-group">
       <label class="form-label">Notas</label>
       <textarea class="form-textarea" id="f-notes" placeholder="Observações sobre a peça..."></textarea>
@@ -1121,9 +1096,9 @@ let currentSearch = '';
 let tempImgData = null;
 
 const EMOJIS = {
-  'Tops': '👕', 'Calças': '👖', 'Vestidos': '👗', 'Saias': '🩱',
-  'Casacos': '🧥', 'Shorts': '🩳', 'Macacão': '👘', 'Acessórios': '👜',
-  'Calçados': '👟', 'Lingerie': '🩲', 'Pijamas': '🌙'
+  'Tops': '👕', 'Camisa': '👔', 'Calças': '👖', 'Vestidos': '👗', 'Saias': '🩱',
+  'Casacos': '🧥', 'Shorts': '🩳', 'Acessórios': '👜',
+  'Calçados': '👟', 'Pijamas': '🌙'
 };
 
 function setLoading(on) {
@@ -1291,8 +1266,7 @@ async function saveClothes() {
     img_data: tempImgData || null,
     tags: {
       clima: getSelectedTags('clima-tags'), ocasiao: getSelectedTags('ocasiao-tags'),
-      cor: getSelectedTags('cor-tags'), estilo: getSelectedTags('estilo-tags'),
-      material: getSelectedTags('material-tags'),
+      cor: getSelectedTags('cor-tags'),
     },
     notes: document.getElementById('f-notes').value.trim(),
     wear_count: 0, added_date: new Date().toISOString()
@@ -1337,8 +1311,6 @@ function openDetail(id) {
     ...(c.tags.clima||[]).map(t=>`<span class="tag tag-clima">${t}</span>`),
     ...(c.tags.ocasiao||[]).map(t=>`<span class="tag tag-ocasiao">${t}</span>`),
     ...(c.tags.cor||[]).map(t=>`<span class="tag tag-cor">${t}</span>`),
-    ...(c.tags.estilo||[]).map(t=>`<span class="tag tag-estilo">${t}</span>`),
-    ...(c.tags.material||[]).map(t=>`<span class="tag tag-material">${t}</span>`),
   ].join('');
   const lastWorn = c.lastWorn ? new Date(c.lastWorn).toLocaleDateString('pt-BR') : 'Nunca';
   const added = c.addedDate ? new Date(c.addedDate).toLocaleDateString('pt-BR') : '-';
