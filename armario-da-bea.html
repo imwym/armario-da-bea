@@ -745,6 +745,56 @@
     .toast { bottom: 80px; right: 1rem; left: 1rem; text-align: center; }
   }
 
+  /* SUGESTÕES */
+  .sugestoes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .suggest-card {
+    background: white;
+    border-radius: 18px;
+    border: 1px solid rgba(244,198,208,0.5);
+    box-shadow: 0 2px 14px var(--shadow);
+    overflow: hidden;
+    transition: all 0.25s;
+  }
+  .suggest-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px var(--shadow-hover); }
+  .suggest-pieces-row {
+    display: flex;
+    gap: 6px;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--blush), #f5eaf0);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .suggest-piece {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .suggest-piece-img {
+    width: 80px;
+    aspect-ratio: 3/4;
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    overflow: hidden;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  .suggest-piece-img img { width: 100%; height: 100%; object-fit: cover; }
+  .suggest-piece-label { font-size: 0.65rem; color: var(--text-muted); text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .suggest-plus { font-size: 1.2rem; color: var(--rose); align-self: center; margin-top: -16px; }
+  .suggest-info { padding: 12px 16px 14px; }
+  .suggest-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--rose-deep); margin-bottom: 4px; }
+  .suggest-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .suggest-actions { display: flex; gap: 8px; }
+
   /* MANNEQUIN */
   .mannequin-wrap {
     position: relative;
@@ -826,6 +876,7 @@
       <button class="active" onclick="showPage('roupas')">👗 Roupas</button>
       <button onclick="showPage('conjuntos')">✨ Conjuntos</button>
       <button onclick="showPage('montar')">🎀 Montar Look</button>
+      <button onclick="showPage('sugestoes')">🪄 Sugestões</button>
       <button onclick="showPage('doacao')">💝 Para Doar</button>
     </nav>
   </div>
@@ -840,6 +891,9 @@
   </button>
   <button onclick="showPageMobile('montar', this)">
     <span class="nav-icon">🎀</span>Look
+  </button>
+  <button onclick="showPageMobile('sugestoes', this)">
+    <span class="nav-icon">🪄</span>Sugestões
   </button>
   <button onclick="showPageMobile('doacao', this)">
     <span class="nav-icon">💝</span>Doar
@@ -1058,6 +1112,32 @@
         <div class="empty-text">Quando tiver peças pouco utilizadas, elas aparecerão aqui.</div>
       </div>
     </div>
+  <!-- SUGESTÕES -->
+  <div id="page-sugestoes" class="page">
+    <div class="section-header">
+      <div class="section-title">
+        <span>geradas para você</span>
+        Sugestões de Looks
+      </div>
+      <button class="btn-primary" onclick="gerarSugestoes()">🪄 Gerar Novas</button>
+    </div>
+
+    <div class="suggest-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem;">
+      <span class="filter-label">Ocasião:</span>
+      <button class="filter-btn active" onclick="setSuggestFilter('', this)">Todas</button>
+      <button class="filter-btn" onclick="setSuggestFilter('Trabalho', this)">💼 Trabalho</button>
+      <button class="filter-btn" onclick="setSuggestFilter('Casual', this)">🛍️ Casual</button>
+      <button class="filter-btn" onclick="setSuggestFilter('Festa', this)">🎉 Festa</button>
+      <button class="filter-btn" onclick="setSuggestFilter('Praia', this)">🌊 Praia</button>
+    </div>
+
+    <div id="sugestoes-grid" class="sugestoes-grid">
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">🪄</div>
+        <div class="empty-title">Pronta para se inspirar?</div>
+        <div class="empty-text">Clique em "Gerar Novas" para ver combinações das suas peças!</div>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -1248,6 +1328,7 @@ function showPageMobile(page, btn) {
   if (page === 'doacao') renderDonate();
   if (page === 'montar') renderPicker();
   if (page === 'roupas') renderClothes();
+  if (page === 'sugestoes') renderSugestoes();
 }
 
 function showPage(page) {
@@ -1260,6 +1341,7 @@ function showPage(page) {
   if (page === 'doacao') renderDonate();
   if (page === 'montar') renderPicker();
   if (page === 'roupas') renderClothes();
+  if (page === 'sugestoes') renderSugestoes();
 }
 
 function getCategoryEmoji(cat) { return EMOJIS[cat] || '👗'; }
@@ -1628,6 +1710,128 @@ function showToast(msg) {
 
 document.getElementById('add-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddModal(); });
 document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetailModal(); });
+
+/* SUGESTÕES */
+let suggestFilter = '';
+let todasSugestoes = [];
+
+function setSuggestFilter(val, btn) {
+  suggestFilter = val;
+  document.querySelectorAll('.suggest-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSugestoes();
+}
+
+function gerarSugestoes() {
+  const tops     = clothes.filter(c => ['Tops','Camisa','Vestidos'].includes(c.category));
+  const bottoms  = clothes.filter(c => ['Calças','Saias','Shorts'].includes(c.category));
+  const casacos  = clothes.filter(c => c.category === 'Casacos');
+  const calcados = clothes.filter(c => c.category === 'Calçados');
+  const vestidos = clothes.filter(c => c.category === 'Vestidos');
+
+  if (tops.length === 0 && vestidos.length === 0) {
+    showToast('Adicione tops, camisas ou vestidos para gerar sugestões! 🌸');
+    return;
+  }
+
+  todasSugestoes = [];
+
+  // Look com top + bottom
+  tops.filter(t => t.category !== 'Vestidos').forEach(top => {
+    bottoms.forEach(bot => {
+      const casaco  = casacos.length  ? casacos[Math.floor(Math.random() * casacos.length)]   : null;
+      const calcado = calcados.length ? calcados[Math.floor(Math.random() * calcados.length)] : null;
+      // tags em comum para ocasião
+      const ocasioes = [...new Set([...(top.tags.ocasiao||[]), ...(bot.tags.ocasiao||[])])];
+      const climas   = [...new Set([...(top.tags.clima||[]),   ...(bot.tags.clima||[])])];
+      todasSugestoes.push({ id: Math.random(), pieces: [top, bot, casaco, calcado].filter(Boolean), ocasioes, climas, tipo: 'top+bottom' });
+    });
+  });
+
+  // Look com vestido
+  vestidos.forEach(v => {
+    const casaco  = casacos.length  ? casacos[Math.floor(Math.random() * casacos.length)]   : null;
+    const calcado = calcados.length ? calcados[Math.floor(Math.random() * calcados.length)] : null;
+    const ocasioes = [...(v.tags.ocasiao||[])];
+    const climas   = [...(v.tags.clima||[])];
+    todasSugestoes.push({ id: Math.random(), pieces: [v, casaco, calcado].filter(Boolean), ocasioes, climas, tipo: 'vestido' });
+  });
+
+  // Embaralha e pega até 12
+  todasSugestoes = todasSugestoes.sort(() => Math.random() - 0.5).slice(0, 12);
+  renderSugestoes();
+  showToast(`${todasSugestoes.length} sugestões geradas! ✨`);
+}
+
+function renderSugestoes() {
+  const grid = document.getElementById('sugestoes-grid');
+  let lista = todasSugestoes;
+
+  if (suggestFilter) {
+    lista = lista.filter(s => s.ocasioes.some(o => o.toLowerCase().includes(suggestFilter.toLowerCase())));
+  }
+
+  if (lista.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">🪄</div>
+      <div class="empty-title">${todasSugestoes.length === 0 ? 'Clique em "Gerar Novas"!' : 'Nenhuma sugestão para esse filtro'}</div>
+      <div class="empty-text">${todasSugestoes.length === 0 ? 'Vamos criar looks incríveis com suas peças ✨' : 'Tente outro filtro de ocasião'}</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = lista.map((s, i) => {
+    const piecesHTML = s.pieces.map((p, pi) => {
+      const img = p.imgData ? `<img src="${p.imgData}" alt="${p.name}">` : getCategoryEmoji(p.category);
+      return `${pi > 0 ? '<div class="suggest-plus">+</div>' : ''}
+        <div class="suggest-piece">
+          <div class="suggest-piece-img">${p.imgData ? `<img src="${p.imgData}" alt="${p.name}">` : img}</div>
+          <div class="suggest-piece-label">${p.name}</div>
+        </div>`;
+    }).join('');
+
+    const ocasTags = s.ocasioes.slice(0,3).map(o => `<span class="tag tag-ocasiao">${o}</span>`).join('');
+    const climaTags = s.climas.slice(0,2).map(c => `<span class="tag tag-clima">${c}</span>`).join('');
+
+    const nomes = ['Look do Dia', 'Combinação Perfeita', 'Look Especial', 'Estilo do Momento', 'Look Favorito', 'Conjunto Incrível'];
+    const nome = nomes[i % nomes.length];
+
+    return `<div class="suggest-card">
+      <div class="suggest-pieces-row">${piecesHTML}</div>
+      <div class="suggest-info">
+        <div class="suggest-title">✨ ${nome}</div>
+        <div class="suggest-tags">${ocasTags}${climaTags}</div>
+        <div class="suggest-actions">
+          <button class="btn-primary" style="font-size:0.78rem;padding:7px 14px;" onclick="usarSugestao(${JSON.stringify(s.pieces.map(p=>p.id)).replace(/"/g,"'")})">Usar no Manequim</button>
+          <button class="btn-secondary" style="font-size:0.78rem;padding:7px 14px;" onclick="salvarSugestao(${JSON.stringify(s.pieces.map(p=>p.id)).replace(/"/g,"'")})">Salvar Look</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function usarSugestao(ids) {
+  // Navega para montar look e preenche o manequim
+  mannequin = { cabeca: null, tronco: null, cintura: null, casaco: null, pes: null };
+  ['cabeca','tronco','cintura','casaco','pes'].forEach(z => removeFromMannequin(z));
+  ids.forEach(id => { addToMannequin(id); });
+  // vai para a aba montar
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button, .bottom-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-montar').classList.add('active');
+  renderPicker();
+  showToast('Look carregado no manequim! 🎀');
+}
+
+async function salvarSugestao(ids) {
+  const row = { id: 'o' + Date.now(), name: 'Sugestão Automática', occasion: '', items: ids, date: new Date().toISOString(), added_date: new Date().toISOString() };
+  try {
+    await dbInsert('outfits', row);
+    outfits.push(rowToOutfit(row));
+    updateStats();
+    showToast('Look salvo com sucesso! ✨');
+  } catch(e) { showToast('Erro ao salvar. 😢'); }
+}
 
 // Init
 loadAll();
