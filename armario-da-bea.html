@@ -693,12 +693,78 @@
   ::-webkit-scrollbar-thumb { background: var(--rose); border-radius: 3px; }
 
   @media (max-width: 768px) {
-    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    /* HEADER mobile */
+    header { padding: 0 1rem; }
+    .header-inner { height: 58px; }
+    .logo { font-size: 1.3rem; gap: 6px; }
+    .logo em { display: none; }
+    nav { display: none; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      display: flex !important;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      border-top: 1px solid var(--rose);
+      z-index: 100;
+      box-shadow: 0 -4px 20px var(--shadow);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    main { padding: 1rem 1rem 90px; }
+
+    .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .stat-card { padding: 0.9rem 1rem; }
+    .stat-num { font-size: 1.6rem; }
+
+    .section-header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 1rem; }
+    .btn-primary { width: 100%; justify-content: center; }
+
+    .filters { gap: 6px; }
+    .search-box { max-width: 100%; width: 100%; }
+
+    .clothes-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    .outfits-grid { grid-template-columns: 1fr; }
+
     .builder-layout { grid-template-columns: 1fr; }
+    .builder-preview { min-height: 200px; }
+    .picker-grid { max-height: 280px; }
+
     .detail-layout { grid-template-columns: 1fr; }
-    nav button { padding: 6px 10px; font-size: 0.8rem; }
-    .logo { font-size: 1.4rem; }
+    .detail-img { aspect-ratio: 4/3; font-size: 4rem; }
+
+    .modal { padding: 1.5rem 1.25rem; border-radius: 20px 20px 0 0; margin-top: auto; max-height: 92vh; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+
+    .donate-item { flex-wrap: wrap; gap: 10px; }
+
+    .toast { bottom: 80px; right: 1rem; left: 1rem; text-align: center; }
   }
+
+  /* BOTTOM NAV — hidden on desktop */
+  .bottom-nav { display: none; }
+  .bottom-nav button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 4px 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+  .bottom-nav button .nav-icon { font-size: 1.3rem; line-height: 1; }
+  .bottom-nav button.active { color: var(--rose-deep); }
+  .bottom-nav button.active .nav-icon { transform: scale(1.1); }
 </style>
 </head>
 <body>
@@ -717,6 +783,21 @@
     </nav>
   </div>
 </header>
+
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="active" onclick="showPageMobile('roupas', this)">
+    <span class="nav-icon">👗</span>Roupas
+  </button>
+  <button onclick="showPageMobile('conjuntos', this)">
+    <span class="nav-icon">✨</span>Conjuntos
+  </button>
+  <button onclick="showPageMobile('montar', this)">
+    <span class="nav-icon">🎀</span>Look
+  </button>
+  <button onclick="showPageMobile('doacao', this)">
+    <span class="nav-icon">💝</span>Doar
+  </button>
+</nav>
 
 <main>
   <!-- ROUPAS -->
@@ -1065,9 +1146,22 @@ async function loadAll() {
   updateStats();
 }
 
+function showPageMobile(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (page === 'conjuntos') renderOutfits();
+  if (page === 'doacao') renderDonate();
+  if (page === 'montar') renderPicker();
+  if (page === 'roupas') renderClothes();
+}
+
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
   event.target.classList.add('active');
   if (page === 'conjuntos') renderOutfits();
