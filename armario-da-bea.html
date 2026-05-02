@@ -985,16 +985,58 @@
   </div>
 </div>
 
+<div id="loading-bar" style="display:none;position:fixed;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--rose-deep),var(--rose),var(--rose-deep));background-size:200%;animation:shimmer 1.2s infinite;z-index:999;"></div>
+<style>@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}</style>
 <div class="toast" id="toast"></div>
 
 <script>
-let clothes = JSON.parse(localStorage.getItem('bea-clothes') || '[]');
-let outfits = JSON.parse(localStorage.getItem('bea-outfits') || '[]');
+// ── Supabase config ──────────────────────────────────────────────
+const SUPA_URL = 'https://yxekqenklqdyauizzhdu.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4ZWtxZW5rbHFkeWF1aXp6aGR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjkzNTgsImV4cCI6MjA5MzI0NTM1OH0.wt1RrzzchVEtchwpbI3iZAWgbvIUjS5SYifXzhh-aqI';
+
+const headers = {
+  'Content-Type': 'application/json',
+  'apikey': SUPA_KEY,
+  'Authorization': 'Bearer ' + SUPA_KEY,
+  'Prefer': 'return=representation'
+};
+
+async function dbGet(table) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?order=added_date.asc`, { headers });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbInsert(table, row) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}`, { method: 'POST', headers, body: JSON.stringify(row) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbUpdate(table, id, patch) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'PATCH', headers, body: JSON.stringify(patch) });
+  if (!r.ok) throw new Error(await r.text());
+}
+async function dbDelete(table, id) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// Converte snake_case do banco → camelCase local
+function rowToCloth(r) {
+  return { id: r.id, name: r.name, category: r.category, imgData: r.img_data,
+    tags: r.tags || { clima:[], ocasiao:[], cor:[], estilo:[], material:[] },
+    notes: r.notes, wearCount: r.wear_count || 0, lastWorn: r.last_worn, addedDate: r.added_date };
+}
+function rowToOutfit(r) {
+  return { id: r.id, name: r.name, occasion: r.occasion, items: r.items || [], date: r.date };
+}
+// ────────────────────────────────────────────────────────────────
+
+let clothes = [];
+let outfits = [];
 let builderItems = [];
 let currentFilter = 'all';
 let currentClimaFilter = null;
 let currentSearch = '';
-let editingImgData = null;
 let tempImgData = null;
 
 const EMOJIS = {
@@ -1002,6 +1044,26 @@ const EMOJIS = {
   'Casacos': '🧥', 'Shorts': '🩳', 'Macacão': '👘', 'Acessórios': '👜',
   'Calçados': '👟', 'Lingerie': '🩲', 'Pijamas': '🌙'
 };
+
+function setLoading(on) {
+  const el = document.getElementById('loading-bar');
+  if (el) el.style.display = on ? 'block' : 'none';
+}
+
+async function loadAll() {
+  setLoading(true);
+  try {
+    const [cRows, oRows] = await Promise.all([dbGet('clothes'), dbGet('outfits')]);
+    clothes = cRows.map(rowToCloth);
+    outfits = oRows.map(rowToOutfit);
+  } catch(e) {
+    showToast('Erro ao carregar dados. Verifique a conexão. 🌸');
+    console.error(e);
+  }
+  setLoading(false);
+  renderClothes();
+  updateStats();
+}
 
 function showPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1019,7 +1081,7 @@ function getCategoryEmoji(cat) { return EMOJIS[cat] || '👗'; }
 function renderClothes() {
   let filtered = clothes.filter(c => {
     if (currentFilter !== 'all' && c.category !== currentFilter) return false;
-    if (currentClimaFilter && !c.tags.clima.some(t => t.includes(currentClimaFilter.split(' ').pop()))) return false;
+    if (currentClimaFilter && !(c.tags.clima||[]).some(t => t.includes(currentClimaFilter.split(' ').pop()))) return false;
     if (currentSearch && !c.name.toLowerCase().includes(currentSearch.toLowerCase())) return false;
     return true;
   });
@@ -1039,10 +1101,8 @@ function clothesCardHTML(c) {
   const imgHTML = c.imgData
     ? `<img src="${c.imgData}" class="card-img-real" alt="${c.name}">`
     : `<span style="font-size:4rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1))">${getCategoryEmoji(c.category)}</span>`;
-
   const climatags = (c.tags.clima||[]).slice(0,2).map(t=>`<span class="tag tag-clima">${t}</span>`).join('');
   const ocasiotags = (c.tags.ocasiao||[]).slice(0,1).map(t=>`<span class="tag tag-ocasiao">${t}</span>`).join('');
-
   return `<div class="clothes-card" onclick="openDetail('${c.id}')">
     <div class="clothes-img-placeholder">${imgHTML}</div>
     <div class="card-actions">
@@ -1066,18 +1126,15 @@ function updateStats() {
 }
 
 function filterClothes(cat, btn) {
-  currentFilter = cat;
-  currentClimaFilter = null;
+  currentFilter = cat; currentClimaFilter = null;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderClothes();
 }
 
 function filterByClima(clima, btn) {
-  if (currentClimaFilter === clima) {
-    currentClimaFilter = null;
-    btn.classList.remove('active');
-  } else {
+  if (currentClimaFilter === clima) { currentClimaFilter = null; btn.classList.remove('active'); }
+  else {
     currentClimaFilter = clima;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.filter-btn').classList.add('active');
@@ -1086,15 +1143,9 @@ function filterByClima(clima, btn) {
   renderClothes();
 }
 
-function searchClothes() {
-  currentSearch = document.getElementById('search-input').value;
-  renderClothes();
-}
+function searchClothes() { currentSearch = document.getElementById('search-input').value; renderClothes(); }
 
-function openAddModal() {
-  document.getElementById('add-modal').classList.add('open');
-  clearAddForm();
-}
+function openAddModal() { document.getElementById('add-modal').classList.add('open'); clearAddForm(); }
 function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
 
 function clearAddForm() {
@@ -1106,74 +1157,79 @@ function clearAddForm() {
   tempImgData = null;
 }
 
-function toggleTag(el, group) {
-  if (group === 'clima') {
-    el.classList.toggle('selected');
-  } else {
-    el.classList.toggle('selected');
-  }
-}
+function toggleTag(el) { el.classList.toggle('selected'); }
 
 function getSelectedTags(containerId) {
-  return Array.from(document.querySelectorAll('#' + containerId + ' .tag-option.selected'))
-    .map(el => el.textContent.trim());
+  return Array.from(document.querySelectorAll('#' + containerId + ' .tag-option.selected')).map(el => el.textContent.trim());
 }
 
 function handleImgUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+  // Resize to keep DB lean
+  const img = new Image();
   const reader = new FileReader();
   reader.onload = e => {
-    tempImgData = e.target.result;
-    const preview = document.getElementById('img-preview');
-    preview.src = tempImgData;
-    preview.style.display = 'block';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = h * MAX / w; w = MAX; }
+      else if (h > MAX) { w = w * MAX / h; h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      tempImgData = canvas.toDataURL('image/jpeg', 0.75);
+      const preview = document.getElementById('img-preview');
+      preview.src = tempImgData; preview.style.display = 'block';
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-function saveClothes() {
+async function saveClothes() {
   const name = document.getElementById('f-name').value.trim();
   const cat = document.getElementById('f-cat').value;
   if (!name || !cat) { showToast('Preencha nome e categoria! 🌸'); return; }
-
-  const item = {
-    id: 'c' + Date.now(),
-    name, category: cat,
-    imgData: tempImgData || null,
+  showToast('Salvando... ⏳');
+  const row = {
+    id: 'c' + Date.now(), name, category: cat,
+    img_data: tempImgData || null,
     tags: {
-      clima: getSelectedTags('clima-tags'),
-      ocasiao: getSelectedTags('ocasiao-tags'),
-      cor: getSelectedTags('cor-tags'),
-      estilo: getSelectedTags('estilo-tags'),
+      clima: getSelectedTags('clima-tags'), ocasiao: getSelectedTags('ocasiao-tags'),
+      cor: getSelectedTags('cor-tags'), estilo: getSelectedTags('estilo-tags'),
       material: getSelectedTags('material-tags'),
     },
     notes: document.getElementById('f-notes').value.trim(),
-    wearCount: 0,
-    addedDate: new Date().toISOString()
+    wear_count: 0, added_date: new Date().toISOString()
   };
-
-  clothes.push(item);
-  save();
-  closeAddModal();
-  renderClothes();
-  showToast('Peça adicionada com sucesso! 🌸');
+  try {
+    await dbInsert('clothes', row);
+    clothes.push(rowToCloth(row));
+    closeAddModal(); renderClothes();
+    showToast('Peça adicionada com sucesso! 🌸');
+  } catch(e) { showToast('Erro ao salvar. Tente novamente. 😢'); console.error(e); }
 }
 
-function deleteClothes(id) {
+async function deleteClothes(id) {
   if (!confirm('Remover esta peça do guarda-roupa?')) return;
-  clothes = clothes.filter(c => c.id !== id);
-  save();
-  renderClothes();
-  showToast('Peça removida 💔');
+  try {
+    await dbDelete('clothes', id);
+    clothes = clothes.filter(c => c.id !== id);
+    renderClothes(); showToast('Peça removida 💔');
+  } catch(e) { showToast('Erro ao remover. 😢'); }
 }
 
-function markWear(id) {
+async function markWear(id) {
   const c = clothes.find(x => x.id === id);
-  if (c) { c.wearCount = (c.wearCount || 0) + 1; c.lastWorn = new Date().toISOString(); }
-  save();
-  renderClothes();
-  showToast('Uso registrado! ✅');
+  if (!c) return;
+  const newCount = (c.wearCount || 0) + 1;
+  const lastWorn = new Date().toISOString();
+  try {
+    await dbUpdate('clothes', id, { wear_count: newCount, last_worn: lastWorn });
+    c.wearCount = newCount; c.lastWorn = lastWorn;
+    renderClothes(); showToast('Uso registrado! ✅');
+  } catch(e) { showToast('Erro ao registrar uso. 😢'); }
 }
 
 function openDetail(id) {
@@ -1183,7 +1239,6 @@ function openDetail(id) {
   const imgHTML = c.imgData
     ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">`
     : getCategoryEmoji(c.category);
-
   const allTags = [
     ...(c.tags.clima||[]).map(t=>`<span class="tag tag-clima">${t}</span>`),
     ...(c.tags.ocasiao||[]).map(t=>`<span class="tag tag-ocasiao">${t}</span>`),
@@ -1191,10 +1246,8 @@ function openDetail(id) {
     ...(c.tags.estilo||[]).map(t=>`<span class="tag tag-estilo">${t}</span>`),
     ...(c.tags.material||[]).map(t=>`<span class="tag tag-material">${t}</span>`),
   ].join('');
-
   const lastWorn = c.lastWorn ? new Date(c.lastWorn).toLocaleDateString('pt-BR') : 'Nunca';
-  const added = new Date(c.addedDate).toLocaleDateString('pt-BR');
-
+  const added = c.addedDate ? new Date(c.addedDate).toLocaleDateString('pt-BR') : '-';
   document.getElementById('detail-content').innerHTML = `
     <div class="detail-layout">
       <div class="detail-img">${imgHTML}</div>
@@ -1213,7 +1266,6 @@ function openDetail(id) {
     </div>`;
   document.getElementById('detail-modal').classList.add('open');
 }
-
 function closeDetailModal() { document.getElementById('detail-modal').classList.remove('open'); }
 
 /* CONJUNTOS */
@@ -1224,17 +1276,17 @@ function renderOutfits() {
     return;
   }
   grid.innerHTML = outfits.map(o => {
-    const pieces = o.items.map(id => clothes.find(c => c.id === id)).filter(Boolean);
+    const pieces = (o.items||[]).map(id => clothes.find(c => c.id === id)).filter(Boolean);
     const piecesHTML = pieces.map(p => {
       const img = p.imgData ? `<img src="${p.imgData}" style="width:100%;height:100%;object-fit:cover;">` : getCategoryEmoji(p.category);
       return `<div class="outfit-piece-thumb">${img}</div>`;
     }).join('');
     return `<div class="outfit-card">
-      <div class="outfit-pieces">${piecesHTML || '<div style="color:var(--text-muted);font-size:0.8rem;">Peças removidas</div>'}</div>
+      <div class="outfit-pieces">${piecesHTML || '<div style="color:var(--text-muted);font-size:0.8rem;padding:8px;">Peças removidas</div>'}</div>
       <div class="outfit-info">
         <div class="outfit-name">${o.name}</div>
         <div class="outfit-occasion">${o.occasion || 'Sem ocasião definida'}</div>
-        <div style="margin-top:10px;display:flex;gap:6px;">
+        <div style="margin-top:10px;">
           <button class="btn-secondary" style="font-size:0.78rem;padding:5px 12px;" onclick="deleteOutfit('${o.id}')">Remover</button>
         </div>
       </div>
@@ -1242,11 +1294,12 @@ function renderOutfits() {
   }).join('');
 }
 
-function deleteOutfit(id) {
-  outfits = outfits.filter(o => o.id !== id);
-  save();
-  renderOutfits();
-  showToast('Conjunto removido 💔');
+async function deleteOutfit(id) {
+  try {
+    await dbDelete('outfits', id);
+    outfits = outfits.filter(o => o.id !== id);
+    renderOutfits(); updateStats(); showToast('Conjunto removido 💔');
+  } catch(e) { showToast('Erro ao remover. 😢'); }
 }
 
 /* BUILDER */
@@ -1293,16 +1346,19 @@ function renderBuilderPreview() {
 
 function clearBuilder() { builderItems = []; renderPicker(); }
 
-function saveOutfit() {
+async function saveOutfit() {
   if (builderItems.length < 2) { showToast('Adicione pelo menos 2 peças! 👗'); return; }
   const name = document.getElementById('outfit-name').value.trim() || 'Look sem nome';
   const occasion = document.getElementById('outfit-occasion').value;
-  outfits.push({ id: 'o' + Date.now(), name, occasion, items: [...builderItems], date: new Date().toISOString() });
-  save();
-  clearBuilder();
-  document.getElementById('outfit-name').value = '';
-  document.getElementById('outfit-occasion').value = '';
-  showToast('Look salvo com sucesso! ✨');
+  const row = { id: 'o' + Date.now(), name, occasion, items: [...builderItems], date: new Date().toISOString() };
+  try {
+    await dbInsert('outfits', row);
+    outfits.push(rowToOutfit(row));
+    clearBuilder();
+    document.getElementById('outfit-name').value = '';
+    document.getElementById('outfit-occasion').value = '';
+    updateStats(); showToast('Look salvo com sucesso! ✨');
+  } catch(e) { showToast('Erro ao salvar look. 😢'); console.error(e); }
 }
 
 /* DOAÇÃO */
@@ -1316,9 +1372,7 @@ function renderDonate() {
   list.innerHTML = candidates.map(c => {
     const img = c.imgData ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">` : getCategoryEmoji(c.category);
     const wears = c.wearCount || 0;
-    const badge = wears === 0
-      ? `<span class="donate-badge badge-never">Nunca usada</span>`
-      : `<span class="donate-badge badge-rarely">Raramente usada</span>`;
+    const badge = wears === 0 ? `<span class="donate-badge badge-never">Nunca usada</span>` : `<span class="donate-badge badge-rarely">Raramente usada</span>`;
     const lastWorn = c.lastWorn ? `Último uso: ${new Date(c.lastWorn).toLocaleDateString('pt-BR')}` : 'Nunca foi usada';
     return `<div class="donate-item">
       <div class="donate-thumb">${img}</div>
@@ -1336,12 +1390,6 @@ function renderDonate() {
   document.getElementById('total-doacao').textContent = candidates.length;
 }
 
-function save() {
-  localStorage.setItem('bea-clothes', JSON.stringify(clothes));
-  localStorage.setItem('bea-outfits', JSON.stringify(outfits));
-  updateStats();
-}
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -1349,13 +1397,11 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// Close modal on outside click
 document.getElementById('add-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddModal(); });
 document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetailModal(); });
 
 // Init
-renderClothes();
-updateStats();
+loadAll();
 </script>
 </body>
 </html>
