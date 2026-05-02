@@ -745,6 +745,53 @@
     .toast { bottom: 80px; right: 1rem; left: 1rem; text-align: center; }
   }
 
+  /* MANNEQUIN */
+  .mannequin-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto 8px;
+  }
+  .mannequin-svg {
+    width: 100%;
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(168,85,112,0.15));
+  }
+  .mq-zone {
+    position: absolute;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s;
+    overflow: hidden;
+    border: 2px dashed transparent;
+  }
+  .mq-zone:hover { border-color: var(--rose-deep); background: rgba(244,198,208,0.2); }
+  .mq-zone.filled { border: 2px solid var(--rose-deep); }
+
+  /* Posições das zonas — em % relativo ao SVG viewBox 220x520 */
+  .mq-cabeca  { left: 34%; top: 1%;  width: 32%; height: 15%; }
+  .mq-casaco  { left: 18%; top: 15%; width: 64%; height: 30%; }
+  .mq-tronco  { left: 22%; top: 15%; width: 56%; height: 30%; }
+  .mq-cintura { left: 22%; top: 44%; width: 56%; height: 25%; }
+  .mq-pes     { left: 22%; top: 80%; height: 10%; width: 56%; }
+
+  .mq-remove {
+    position: absolute;
+    top: 3px; right: 3px;
+    background: var(--rose-deep);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
   /* BOTTOM NAV — hidden on desktop */
   .bottom-nav { display: none; }
   .bottom-nav button {
@@ -880,15 +927,82 @@
         Montar Look
       </div>
     </div>
+
     <div class="builder-layout">
+      <!-- COLUNA ESQUERDA: manequim + salvar -->
       <div>
         <div class="builder-panel">
-          <h3>🎀 Seu Look</h3>
-          <div class="builder-preview" id="builder-preview">
-            <div style="width:100%;text-align:center;color:var(--text-muted);font-size:0.8rem;padding-top:20px;">
-              Clique nas peças ao lado para adicionar ao look ✨
+          <h3>🎀 Experimente no Manequim</h3>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px;">Clique nas peças à direita para vestir o manequim ✨</p>
+
+          <!-- MANEQUIM -->
+          <div class="mannequin-wrap">
+            <!-- SVG silhueta feminina -->
+            <svg class="mannequin-svg" viewBox="0 0 220 520" xmlns="http://www.w3.org/2000/svg">
+              <!-- Cabeça -->
+              <ellipse cx="110" cy="42" rx="28" ry="32" fill="#f0d9d0" stroke="#d4a8a0" stroke-width="1.5"/>
+              <!-- Pescoço -->
+              <rect x="100" y="70" width="20" height="18" rx="6" fill="#f0d9d0" stroke="#d4a8a0" stroke-width="1"/>
+              <!-- Ombros/Tronco superior -->
+              <path d="M55 90 Q70 80 110 82 Q150 80 165 90 L170 160 Q140 170 110 172 Q80 170 50 160 Z" fill="#e8c4cc" stroke="#c9a0aa" stroke-width="1.5"/>
+              <!-- Cintura -->
+              <path d="M50 160 Q80 170 110 172 Q140 170 170 160 L165 210 Q140 220 110 222 Q80 220 55 210 Z" fill="#e8c4cc" stroke="#c9a0aa" stroke-width="1.5"/>
+              <!-- Quadril -->
+              <path d="M55 210 Q80 220 110 222 Q140 220 165 210 L168 265 Q138 278 110 280 Q82 278 52 265 Z" fill="#e8c4cc" stroke="#c9a0aa" stroke-width="1.5"/>
+              <!-- Perna esquerda -->
+              <path d="M52 265 Q68 278 88 280 L84 430 Q76 432 68 430 L55 270 Z" fill="#f0d9d0" stroke="#d4a8a0" stroke-width="1.5"/>
+              <!-- Perna direita -->
+              <path d="M168 265 Q152 278 132 280 L136 430 Q144 432 152 430 L165 270 Z" fill="#f0d9d0" stroke="#d4a8a0" stroke-width="1.5"/>
+              <!-- Pé esquerdo -->
+              <ellipse cx="74" cy="435" rx="14" ry="7" fill="#d4a8a0"/>
+              <!-- Pé direito -->
+              <ellipse cx="146" cy="435" rx="14" ry="7" fill="#d4a8a0"/>
+              <!-- Braço esquerdo -->
+              <path d="M55 90 Q35 100 28 130 Q24 160 30 190 Q36 195 44 190 Q40 165 44 138 Q48 112 60 100 Z" fill="#f0d9d0" stroke="#d4a8a0" stroke-width="1.5"/>
+              <!-- Braço direito -->
+              <path d="M165 90 Q185 100 192 130 Q196 160 190 190 Q184 195 176 190 Q180 165 176 138 Q172 112 160 100 Z" fill="#f0d9d0" stroke="#d4a8a0" stroke-width="1.5"/>
+              <!-- Detalhes rosto -->
+              <ellipse cx="102" cy="40" rx="3" ry="3.5" fill="#c9a0aa" opacity="0.6"/>
+              <ellipse cx="118" cy="40" rx="3" ry="3.5" fill="#c9a0aa" opacity="0.6"/>
+              <path d="M103 52 Q110 57 117 52" stroke="#c9a0aa" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <!-- Cabelo -->
+              <path d="M82 28 Q84 10 110 8 Q136 10 138 28 Q130 18 110 16 Q90 18 82 28 Z" fill="#8b5e52"/>
+              <path d="M82 28 Q76 40 80 55 Q84 30 82 28Z" fill="#8b5e52"/>
+              <path d="M138 28 Q144 40 140 55 Q136 30 138 28Z" fill="#8b5e52"/>
+            </svg>
+
+            <!-- Zonas de sobreposição das roupas -->
+            <div class="mq-zone mq-cabeca" id="mq-cabeca" title="Acessórios de cabeça">
+              <img id="mq-img-cabeca" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+              <button class="mq-remove" id="mq-rm-cabeca" onclick="removeFromMannequin('cabeca')" style="display:none">✕</button>
+            </div>
+            <div class="mq-zone mq-tronco" id="mq-tronco" title="Top / Camisa / Vestido">
+              <img id="mq-img-tronco" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;">
+              <button class="mq-remove" id="mq-rm-tronco" onclick="removeFromMannequin('tronco')" style="display:none">✕</button>
+            </div>
+            <div class="mq-zone mq-cintura" id="mq-cintura" title="Calça / Saia / Shorts">
+              <img id="mq-img-cintura" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;">
+              <button class="mq-remove" id="mq-rm-cintura" onclick="removeFromMannequin('cintura')" style="display:none">✕</button>
+            </div>
+            <div class="mq-zone mq-pes" id="mq-pes" title="Calçados">
+              <img id="mq-img-pes" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:6px;">
+              <button class="mq-remove" id="mq-rm-pes" onclick="removeFromMannequin('pes')" style="display:none">✕</button>
+            </div>
+            <div class="mq-zone mq-casaco" id="mq-casaco" title="Casaco / Sobreposição">
+              <img id="mq-img-casaco" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;">
+              <button class="mq-remove" id="mq-rm-casaco" onclick="removeFromMannequin('casaco')" style="display:none">✕</button>
             </div>
           </div>
+
+          <!-- legenda zonas -->
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 14px;">
+            <span style="font-size:0.68rem;padding:3px 8px;border-radius:8px;background:#fce4ec;color:#880e4f;">👑 Acessório</span>
+            <span style="font-size:0.68rem;padding:3px 8px;border-radius:8px;background:#e3f2fd;color:#1565c0;">👕 Top/Camisa</span>
+            <span style="font-size:0.68rem;padding:3px 8px;border-radius:8px;background:#e8f5e9;color:#2e7d32;">👖 Calça/Saia</span>
+            <span style="font-size:0.68rem;padding:3px 8px;border-radius:8px;background:#fff3e0;color:#e65100;">🧥 Casaco</span>
+            <span style="font-size:0.68rem;padding:3px 8px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;">👟 Calçado</span>
+          </div>
+
           <input class="outfit-name-input" id="outfit-name" placeholder="Nome do look (ex: Look de Trabalho)">
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <select id="outfit-occasion" class="form-select" style="flex:1;font-size:0.8rem;">
@@ -908,8 +1022,11 @@
           </div>
         </div>
       </div>
+
+      <!-- COLUNA DIREITA: peças -->
       <div class="builder-panel">
         <h3>👗 Suas Peças</h3>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:10px;">Clique numa peça para vestir no manequim</p>
         <div class="picker-grid" id="picker-grid">
           <div class="empty-state">
             <div class="empty-text" style="font-size:0.85rem;">Adicione roupas ao guarda-roupa primeiro!</div>
@@ -1368,6 +1485,18 @@ async function deleteOutfit(id) {
   } catch(e) { showToast('Erro ao remover. 😢'); }
 }
 
+// Mapeamento categoria → zona do manequim
+const CAT_ZONE = {
+  'Tops': 'tronco', 'Camisa': 'tronco',
+  'Vestidos': 'tronco', 'Saias': 'cintura',
+  'Calças': 'cintura', 'Shorts': 'cintura',
+  'Casacos': 'casaco',
+  'Calçados': 'pes',
+  'Acessórios': 'cabeca', 'Pijamas': 'tronco'
+};
+
+let mannequin = { cabeca: null, tronco: null, cintura: null, casaco: null, pes: null };
+
 /* BUILDER */
 function renderPicker() {
   const grid = document.getElementById('picker-grid');
@@ -1375,42 +1504,76 @@ function renderPicker() {
     grid.innerHTML = `<div class="empty-state"><div class="empty-text" style="font-size:0.85rem;">Adicione roupas ao guarda-roupa primeiro!</div></div>`;
     return;
   }
+  // quais ids estão no manequim
+  const usedIds = Object.values(mannequin).filter(Boolean).map(c => c.id);
   grid.innerHTML = clothes.map(c => {
-    const inOutfit = builderItems.includes(c.id);
+    const inUse = usedIds.includes(c.id);
     const img = c.imgData ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;">` : getCategoryEmoji(c.category);
-    return `<div class="picker-item ${inOutfit ? 'in-outfit' : ''}" onclick="toggleBuilder('${c.id}')">
+    const zone = CAT_ZONE[c.category] || 'tronco';
+    const zoneLabel = { tronco:'👕 Tronco', cintura:'👖 Cintura', casaco:'🧥 Casaco', pes:'👟 Pés', cabeca:'👑 Acessório' }[zone];
+    return `<div class="picker-item ${inUse ? 'in-outfit' : ''}" onclick="addToMannequin('${c.id}')">
       <div class="picker-item-img">${img}</div>
       <div class="picker-item-name">${c.name}</div>
+      <div style="font-size:0.58rem;text-align:center;background:white;padding:2px 4px;color:var(--text-muted)">${zoneLabel}</div>
     </div>`;
   }).join('');
-  renderBuilderPreview();
 }
 
-function toggleBuilder(id) {
-  if (builderItems.includes(id)) builderItems = builderItems.filter(x => x !== id);
-  else builderItems.push(id);
+function addToMannequin(id) {
+  const c = clothes.find(x => x.id === id);
+  if (!c) return;
+  const zone = CAT_ZONE[c.category] || 'tronco';
+
+  // se já tem essa peça, remove
+  if (mannequin[zone] && mannequin[zone].id === id) {
+    removeFromMannequin(zone);
+    return;
+  }
+
+  mannequin[zone] = c;
+  updateMannequinZone(zone, c);
+  builderItems = Object.values(mannequin).filter(Boolean).map(x => x.id);
   renderPicker();
 }
 
-function renderBuilderPreview() {
-  const preview = document.getElementById('builder-preview');
-  if (builderItems.length === 0) {
-    preview.innerHTML = `<div style="width:100%;text-align:center;color:var(--text-muted);font-size:0.8rem;padding-top:20px;">Clique nas peças ao lado para adicionar ao look ✨</div>`;
-    return;
+function updateMannequinZone(zone, c) {
+  const img = document.getElementById('mq-img-' + zone);
+  const rm  = document.getElementById('mq-rm-' + zone);
+  const zoneEl = document.getElementById('mq-' + zone);
+  if (c && c.imgData) {
+    img.src = c.imgData;
+    img.style.display = 'block';
+    rm.style.display  = 'flex';
+    zoneEl.classList.add('filled');
+  } else if (c) {
+    // sem foto: mostra emoji
+    img.style.display = 'none';
+    rm.style.display  = 'flex';
+    zoneEl.style.background = 'rgba(244,198,208,0.5)';
+    zoneEl.classList.add('filled');
   }
-  preview.innerHTML = builderItems.map(id => {
-    const c = clothes.find(x => x.id === id);
-    if (!c) return '';
-    const img = c.imgData ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;">` : getCategoryEmoji(c.category);
-    return `<div class="builder-piece">
-      <div class="builder-piece-img">${img}</div>
-      <div class="builder-piece-label">${c.name}</div>
-      <button class="builder-remove" onclick="event.stopPropagation();toggleBuilder('${c.id}')">✕</button>
-    </div>`;
-  }).join('');
 }
 
-function clearBuilder() { builderItems = []; renderPicker(); }
+function removeFromMannequin(zone) {
+  mannequin[zone] = null;
+  const img  = document.getElementById('mq-img-' + zone);
+  const rm   = document.getElementById('mq-rm-' + zone);
+  const zoneEl = document.getElementById('mq-' + zone);
+  img.style.display = 'none';
+  img.src = '';
+  rm.style.display  = 'none';
+  zoneEl.style.background = '';
+  zoneEl.classList.remove('filled');
+  builderItems = Object.values(mannequin).filter(Boolean).map(x => x.id);
+  renderPicker();
+}
+
+function clearBuilder() {
+  mannequin = { cabeca: null, tronco: null, cintura: null, casaco: null, pes: null };
+  builderItems = [];
+  ['cabeca','tronco','cintura','casaco','pes'].forEach(z => removeFromMannequin(z));
+  renderPicker();
+}
 
 async function saveOutfit() {
   if (builderItems.length < 2) { showToast('Adicione pelo menos 2 peças! 👗'); return; }
