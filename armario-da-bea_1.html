@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Armário da Bea</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #f4c6d0;
+    --rose-dark: #d4849a;
+    --rose-deep: #a85570;
+    --blush: #fdf0f3;
+    --cream: #faf7f4;
+    --mocha: #7a5c62;
+    --taupe: #c9b5b8;
+    --text: #3d2b2f;
+    --text-muted: #9e8285;
+    --white: #ffffff;
+    --gold: #c9a96e;
+    --sage: #8aad94;
+    --lavender: #b8a9d4;
+    --sky: #9dc4d4;
+    --warm: #e8a87c;
+    --shadow: rgba(168, 85, 112, 0.12);
+    --shadow-hover: rgba(168, 85, 112, 0.22);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background decorative */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(244,198,208,0.3) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -150px; left: -150px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(185,169,212,0.2) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #fff5f7 0%, #fdf0f3 40%, #f8eef5 100%);
+    border-bottom: 1px solid var(--rose);
+    padding: 0 2rem;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+  .header-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--rose-deep);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.02em;
+  }
+  .logo-icon { font-size: 1.5rem; }
+  .logo em {
+    font-style: italic;
+    color: var(--mocha);
+    font-size: 1.1rem;
+    font-weight: 400;
+  }
+
+  nav { display: flex; gap: 4px; }
+  nav button {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  nav button:hover { background: var(--rose); color: var(--mocha); }
+  nav button.active {
+    background: var(--rose-deep);
+    color: white;
+  }
+
+  /* MAIN */
+  main { max-width: 1300px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+
+  /* SECTION TITLE */
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--rose-deep);
+    font-weight: 500;
+  }
+  .section-title span {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--rose);
+    text-align: center;
+    box-shadow: 0 2px 12px var(--shadow);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--rose-deep);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* FILTERS */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    align-items: center;
+  }
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--rose);
+    background: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-muted);
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--rose-deep);
+    border-color: var(--rose-deep);
+    color: white;
+  }
+  .filter-label { font-size: 0.8rem; color: var(--text-muted); margin-right: 4px; }
+  .search-box {
+    flex: 1;
+    max-width: 280px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--rose);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    background: white;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--rose-deep); }
+
+  /* CLOTHES GRID */
+  .clothes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .clothes-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(244,198,208,0.5);
+    box-shadow: 0 2px 12px var(--shadow);
+    transition: all 0.25s;
+    cursor: pointer;
+    position: relative;
+  }
+  .clothes-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px var(--shadow-hover);
+  }
+
+  .clothes-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    background: var(--blush);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .clothes-img-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: linear-gradient(135deg, var(--blush), #f0e4ea);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .clothes-img-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgba(253,240,243,0.8));
+  }
+
+  .card-img-real {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    aspect-ratio: 3/4;
+  }
+
+  .clothes-info { padding: 12px 14px 14px; }
+  .clothes-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .clothes-category {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .clothes-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+  .tag {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .tag-clima { background: #e8f5e9; color: #2e7d32; }
+  .tag-ocasiao { background: #fce4ec; color: #880e4f; }
+  .tag-cor { background: #f3e5f5; color: #6a1b9a; }
+  .tag-estilo { background: #e3f2fd; color: #1565c0; }
+  .tag-material { background: #fff3e0; color: #e65100; }
+
+  .wear-count {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .wear-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sage); }
+  .wear-dot.low { background: #ffb74d; }
+  .wear-dot.very-low { background: #ef5350; }
+
+  .card-actions {
+    position: absolute;
+    top: 8px; right: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .clothes-card:hover .card-actions { opacity: 1; }
+  .icon-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+  }
+  .icon-btn:hover { transform: scale(1.1); }
+
+  /* ADD BUTTON */
+  .btn-primary {
+    background: var(--rose-deep);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(168,85,112,0.3);
+  }
+  .btn-primary:hover { background: var(--mocha); transform: translateY(-1px); }
+  .btn-secondary {
+    background: white;
+    color: var(--rose-deep);
+    border: 1.5px solid var(--rose-deep);
+    padding: 8px 18px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--blush); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(61, 43, 47, 0.55);
+    z-index: 200;
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .modal {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(168,85,112,0.25);
+    position: relative;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--rose-deep);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-close {
+    position: absolute;
+    top: 1.25rem; right: 1.25rem;
+    background: var(--blush);
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    color: var(--mocha);
+  }
+  .modal-close:hover { background: var(--rose); }
+
+  /* FORM */
+  .form-group { margin-bottom: 1rem; }
+  .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--rose);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--rose-deep); }
+  .form-textarea { resize: vertical; min-height: 70px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .tags-selector { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tag-option {
+    padding: 4px 12px;
+    border-radius: 14px;
+    border: 1.5px solid var(--rose);
+    background: white;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tag-option.selected { background: var(--rose-deep); border-color: var(--rose-deep); color: white; }
+
+  .img-upload {
+    border: 2px dashed var(--rose);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--blush);
+    position: relative;
+  }
+  .img-upload:hover { border-color: var(--rose-deep); }
+  .img-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .img-upload-icon { font-size: 2rem; margin-bottom: 6px; }
+  .img-upload-text { font-size: 0.8rem; color: var(--text-muted); }
+  .img-preview { max-width: 100%; max-height: 180px; border-radius: 10px; margin-top: 8px; display: none; }
+
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
+
+  /* CONJUNTOS */
+  .outfits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .outfit-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid rgba(244,198,208,0.5);
+    box-shadow: 0 2px 12px var(--shadow);
+    overflow: hidden;
+    transition: all 0.25s;
+  }
+  .outfit-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px var(--shadow-hover); }
+  .outfit-pieces {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 4px;
+    padding: 12px;
+    background: var(--blush);
+    min-height: 120px;
+    align-items: start;
+  }
+  .outfit-piece-thumb {
+    aspect-ratio: 3/4;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    overflow: hidden;
+    border: 1px solid var(--rose);
+  }
+  .outfit-piece-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .outfit-info { padding: 12px 14px; }
+  .outfit-name { font-weight: 500; font-size: 0.95rem; margin-bottom: 4px; }
+  .outfit-occasion { font-size: 0.78rem; color: var(--text-muted); }
+
+  /* DOAÇÃO */
+  .donate-intro {
+    background: linear-gradient(135deg, #fff5f7, #fdf0f3);
+    border: 1px solid var(--rose);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .donate-intro-icon { font-size: 2.5rem; }
+  .donate-intro-text h3 { font-family: 'Playfair Display', serif; color: var(--rose-deep); margin-bottom: 4px; }
+  .donate-intro-text p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+
+  .donate-item {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(244,198,208,0.4);
+    box-shadow: 0 2px 8px var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+  }
+  .donate-item:hover { box-shadow: 0 4px 16px var(--shadow-hover); }
+  .donate-thumb {
+    width: 56px; height: 72px;
+    border-radius: 8px;
+    background: var(--blush);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .donate-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .donate-info { flex: 1; }
+  .donate-name { font-weight: 500; font-size: 0.95rem; }
+  .donate-detail { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .donate-badge {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-never { background: #fce4ec; color: #880e4f; }
+  .badge-rarely { background: #fff3e0; color: #e65100; }
+
+  .wear-track { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .wear-bar { flex: 1; height: 4px; background: var(--rose); border-radius: 2px; position: relative; }
+  .wear-bar-fill { height: 100%; border-radius: 2px; background: var(--rose-deep); }
+
+  /* OUTFIT BUILDER */
+  .builder-layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem; align-items: start; }
+  .builder-panel {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--rose);
+    padding: 1.25rem;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+  .builder-panel h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--rose-deep); margin-bottom: 1rem; }
+  .builder-preview {
+    min-height: 340px;
+    background: var(--blush);
+    border-radius: 12px;
+    border: 2px dashed var(--rose);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px;
+    align-content: flex-start;
+    margin-bottom: 1rem;
+  }
+  .builder-piece {
+    width: 90px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px var(--shadow);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .builder-piece:hover { transform: scale(1.05); }
+  .builder-piece-img {
+    aspect-ratio: 3/4;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem;
+    overflow: hidden;
+  }
+  .builder-piece-img img { width: 100%; height: 100%; object-fit: cover; }
+  .builder-piece-label { background: white; font-size: 0.65rem; padding: 3px 5px; text-align: center; font-weight: 500; color: var(--mocha); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .builder-remove { position: absolute; top: 3px; right: 3px; background: var(--rose-deep); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+  .builder-piece:hover .builder-remove { opacity: 1; }
+
+  .picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    gap: 8px;
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .picker-item {
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    background: var(--blush);
+  }
+  .picker-item:hover { border-color: var(--rose-dark); transform: scale(1.03); }
+  .picker-item.in-outfit { border-color: var(--rose-deep); }
+  .picker-item-img {
+    aspect-ratio: 3/4;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    overflow: hidden;
+  }
+  .picker-item-img img { width: 100%; height: 100%; object-fit: cover; }
+  .picker-item-name { font-size: 0.62rem; padding: 3px 4px; text-align: center; background: white; color: var(--mocha); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* DETAIL MODAL */
+  .detail-modal { max-width: 620px; }
+  .detail-layout { display: grid; grid-template-columns: 200px 1fr; gap: 1.5rem; align-items: start; }
+  .detail-img {
+    aspect-ratio: 3/4;
+    border-radius: 14px;
+    background: var(--blush);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem;
+    overflow: hidden;
+  }
+  .detail-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--text); margin-bottom: 4px; }
+  .detail-category { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px; }
+  .detail-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 10px; }
+  .detail-key { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; min-width: 80px; padding-top: 2px; }
+  .detail-val { font-size: 0.88rem; flex: 1; }
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wear-btn { background: var(--rose-deep); color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: background 0.2s; }
+  .wear-btn:hover { background: var(--mocha); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  .empty-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--rose-deep); margin-bottom: 6px; }
+  .empty-text { font-size: 0.9rem; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    background: var(--rose-deep);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    z-index: 999;
+    box-shadow: 0 4px 16px rgba(168,85,112,0.4);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  .outfit-name-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1.5px solid var(--rose);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    margin-bottom: 10px;
+  }
+  .outfit-name-input:focus { border-color: var(--rose-deep); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--rose); border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    /* HEADER mobile */
+    header { padding: 0 1rem; }
+    .header-inner { height: 58px; }
+    .logo { font-size: 1.3rem; gap: 6px; }
+    .logo em { display: none; }
+    nav { display: none; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      display: flex !important;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: white;
+      border-top: 1px solid var(--rose);
+      z-index: 100;
+      box-shadow: 0 -4px 20px var(--shadow);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    main { padding: 1rem 1rem 90px; }
+
+    .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .stat-card { padding: 0.9rem 1rem; }
+    .stat-num { font-size: 1.6rem; }
+
+    .section-header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 1rem; }
+    .btn-primary { width: 100%; justify-content: center; }
+
+    .filters { gap: 6px; }
+    .search-box { max-width: 100%; width: 100%; }
+
+    .clothes-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    .outfits-grid { grid-template-columns: 1fr; }
+
+    .builder-layout { grid-template-columns: 1fr; }
+    .builder-preview { min-height: 200px; }
+    .picker-grid { max-height: 280px; }
+
+    .detail-layout { grid-template-columns: 1fr; }
+    .detail-img { aspect-ratio: 4/3; font-size: 4rem; }
+
+    .modal { padding: 1.5rem 1.25rem; border-radius: 20px 20px 0 0; margin-top: auto; max-height: 92vh; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+
+    .donate-item { flex-wrap: wrap; gap: 10px; }
+
+    .toast { bottom: 80px; right: 1rem; left: 1rem; text-align: center; }
+  }
+
+  /* BOTTOM NAV — hidden on desktop */
+  .bottom-nav { display: none; }
+  .bottom-nav button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 4px 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+  .bottom-nav button .nav-icon { font-size: 1.3rem; line-height: 1; }
+  .bottom-nav button.active { color: var(--rose-deep); }
+  .bottom-nav button.active .nav-icon { transform: scale(1.1); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">🌸</span>
+      Armário da Bea <em style="margin-left:6px;">— meu estilo, minha história</em>
+    </div>
+    <nav>
+      <button class="active" onclick="showPage('roupas')">👗 Roupas</button>
+      <button onclick="showPage('conjuntos')">✨ Conjuntos</button>
+      <button onclick="showPage('montar')">🎀 Montar Look</button>
+      <button onclick="showPage('doacao')">💝 Para Doar</button>
+    </nav>
+  </div>
+</header>
+
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="active" onclick="showPageMobile('roupas', this)">
+    <span class="nav-icon">👗</span>Roupas
+  </button>
+  <button onclick="showPageMobile('conjuntos', this)">
+    <span class="nav-icon">✨</span>Conjuntos
+  </button>
+  <button onclick="showPageMobile('montar', this)">
+    <span class="nav-icon">🎀</span>Look
+  </button>
+  <button onclick="showPageMobile('doacao', this)">
+    <span class="nav-icon">💝</span>Doar
+  </button>
+</nav>
+
+<main>
+  <!-- ROUPAS -->
+  <div id="page-roupas" class="page active">
+    <div class="section-header">
+      <div class="section-title">
+        <span>meu guarda-roupa</span>
+        Todas as Peças
+      </div>
+      <button class="btn-primary" onclick="openAddModal()">+ Adicionar Peça</button>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-num" id="total-pecas">0</div>
+        <div class="stat-label">Total de Peças</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="total-usadas">0</div>
+        <div class="stat-label">Peças Usadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="total-conjuntos-stat">0</div>
+        <div class="stat-label">Conjuntos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="total-doacao">0</div>
+        <div class="stat-label">Para Doar</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <span class="filter-label">Filtrar:</span>
+      <button class="filter-btn active" onclick="filterClothes('all', this)">Todas</button>
+      <button class="filter-btn" onclick="filterClothes('Tops', this)">Tops</button>
+      <button class="filter-btn" onclick="filterClothes('Calças', this)">Calças</button>
+      <button class="filter-btn" onclick="filterClothes('Vestidos', this)">Vestidos</button>
+      <button class="filter-btn" onclick="filterClothes('Saias', this)">Saias</button>
+      <button class="filter-btn" onclick="filterClothes('Casacos', this)">Casacos</button>
+      <button class="filter-btn" onclick="filterClothes('Acessórios', this)">Acessórios</button>
+      <span class="filter-label" style="margin-left:8px;">Clima:</span>
+      <button class="filter-btn" onclick="filterByClima('Verão', this)">☀️ Verão</button>
+      <button class="filter-btn" onclick="filterByClima('Inverno', this)">🧥 Inverno</button>
+      <button class="filter-btn" onclick="filterByClima('Meia Estação', this)">🍂 Meia Estação</button>
+      <input class="search-box" placeholder="🔍  Buscar peças..." id="search-input" oninput="searchClothes()">
+    </div>
+
+    <div class="clothes-grid" id="clothes-grid">
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">🌷</div>
+        <div class="empty-title">Seu guarda-roupa está esperando!</div>
+        <div class="empty-text">Adicione suas primeiras peças clicando no botão acima.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONJUNTOS -->
+  <div id="page-conjuntos" class="page">
+    <div class="section-header">
+      <div class="section-title">
+        <span>meus looks</span>
+        Conjuntos Salvos
+      </div>
+    </div>
+    <div class="outfits-grid" id="outfits-grid">
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">✨</div>
+        <div class="empty-title">Nenhum conjunto ainda!</div>
+        <div class="empty-text">Vá em "Montar Look" para criar seus primeiros conjuntos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTAR LOOK -->
+  <div id="page-montar" class="page">
+    <div class="section-header">
+      <div class="section-title">
+        <span>criando</span>
+        Montar Look
+      </div>
+    </div>
+    <div class="builder-layout">
+      <div>
+        <div class="builder-panel">
+          <h3>🎀 Seu Look</h3>
+          <div class="builder-preview" id="builder-preview">
+            <div style="width:100%;text-align:center;color:var(--text-muted);font-size:0.8rem;padding-top:20px;">
+              Clique nas peças ao lado para adicionar ao look ✨
+            </div>
+          </div>
+          <input class="outfit-name-input" id="outfit-name" placeholder="Nome do look (ex: Look de Trabalho)">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="outfit-occasion" class="form-select" style="flex:1;font-size:0.8rem;">
+              <option value="">Ocasião...</option>
+              <option>Trabalho</option>
+              <option>Casual</option>
+              <option>Balada</option>
+              <option>Esporte</option>
+              <option>Viagem</option>
+              <option>Evento</option>
+              <option>Praia</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn-secondary" onclick="clearBuilder()" style="flex:1;">Limpar</button>
+            <button class="btn-primary" onclick="saveOutfit()" style="flex:1;">Salvar Look</button>
+          </div>
+        </div>
+      </div>
+      <div class="builder-panel">
+        <h3>👗 Suas Peças</h3>
+        <div class="picker-grid" id="picker-grid">
+          <div class="empty-state">
+            <div class="empty-text" style="font-size:0.85rem;">Adicione roupas ao guarda-roupa primeiro!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOAÇÃO -->
+  <div id="page-doacao" class="page">
+    <div class="section-header">
+      <div class="section-title">
+        <span>hora de renovar</span>
+        Peças para Doar
+      </div>
+    </div>
+    <div class="donate-intro">
+      <div class="donate-intro-icon">💝</div>
+      <div class="donate-intro-text">
+        <h3>Doe com amor!</h3>
+        <p>Essas peças estão há muito tempo paradas. Que tal dar uma nova vida a elas? Peças nunca usadas ou usadas muito raramente aparecem aqui.</p>
+      </div>
+    </div>
+    <div id="donate-list">
+      <div class="empty-state">
+        <div class="empty-icon">🌸</div>
+        <div class="empty-title">Tudo está sendo usado!</div>
+        <div class="empty-text">Quando tiver peças pouco utilizadas, elas aparecerão aqui.</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL ADICIONAR -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAddModal()">✕</button>
+    <div class="modal-title">🌸 Nova Peça</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nome da Peça *</label>
+        <input type="text" class="form-input" id="f-name" placeholder="ex: Vestido floral">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Categoria *</label>
+        <select class="form-select" id="f-cat">
+          <option value="">Selecione...</option>
+          <option>Tops</option>
+          <option>Calças</option>
+          <option>Vestidos</option>
+          <option>Saias</option>
+          <option>Casacos</option>
+          <option>Shorts</option>
+          <option>Macacão</option>
+          <option>Acessórios</option>
+          <option>Calçados</option>
+          <option>Lingerie</option>
+          <option>Pijamas</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Foto da Peça</label>
+      <div class="img-upload" id="img-upload-area">
+        <input type="file" accept="image/*" id="img-input" onchange="handleImgUpload(event)">
+        <div class="img-upload-icon">📷</div>
+        <div class="img-upload-text">Clique para adicionar uma foto</div>
+        <img id="img-preview" class="img-preview" alt="preview">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Clima / Estação *</label>
+      <div class="tags-selector" id="clima-tags">
+        <span class="tag-option" onclick="toggleTag(this,'clima')">☀️ Verão</span>
+        <span class="tag-option" onclick="toggleTag(this,'clima')">🧥 Inverno</span>
+        <span class="tag-option" onclick="toggleTag(this,'clima')">🍂 Meia Estação</span>
+        <span class="tag-option" onclick="toggleTag(this,'clima')">🌧️ Chuva</span>
+        <span class="tag-option" onclick="toggleTag(this,'clima')">❄️ Frio intenso</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ocasião</label>
+      <div class="tags-selector" id="ocasiao-tags">
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">💼 Trabalho</span>
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">🛍️ Casual</span>
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">🎉 Festa</span>
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">🏃 Esporte</span>
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">✈️ Viagem</span>
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">🌊 Praia</span>
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">🎭 Evento</span>
+        <span class="tag-option" onclick="toggleTag(this,'ocasiao')">💤 Em casa</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cor</label>
+      <div class="tags-selector" id="cor-tags">
+        <span class="tag-option" onclick="toggleTag(this,'cor')">⬛ Preto</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">⬜ Branco</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🔴 Vermelho</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🩷 Rosa</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🔵 Azul</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🟢 Verde</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🟡 Amarelo</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🟠 Laranja</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🟤 Bege</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🌸 Lilás</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">🩵 Azul Claro</span>
+        <span class="tag-option" onclick="toggleTag(this,'cor')">Estampado</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estilo</label>
+      <div class="tags-selector" id="estilo-tags">
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">🌸 Romântico</span>
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">⚡ Moderno</span>
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">🎀 Feminino</span>
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">🖤 Básico</span>
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">🌿 Boho</span>
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">👑 Elegante</span>
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">🎽 Esportivo</span>
+        <span class="tag-option" onclick="toggleTag(this,'estilo')">🌞 Praia</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Material</label>
+      <div class="tags-selector" id="material-tags">
+        <span class="tag-option" onclick="toggleTag(this,'material')">Algodão</span>
+        <span class="tag-option" onclick="toggleTag(this,'material')">Linho</span>
+        <span class="tag-option" onclick="toggleTag(this,'material')">Jeans</span>
+        <span class="tag-option" onclick="toggleTag(this,'material')">Seda</span>
+        <span class="tag-option" onclick="toggleTag(this,'material')">Sintético</span>
+        <span class="tag-option" onclick="toggleTag(this,'material')">Tricô/Lã</span>
+        <span class="tag-option" onclick="toggleTag(this,'material')">Couro/PU</span>
+        <span class="tag-option" onclick="toggleTag(this,'material')">Viscose</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <textarea class="form-textarea" id="f-notes" placeholder="Observações sobre a peça..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeAddModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveClothes()">Salvar Peça ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHE -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal detail-modal">
+    <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    <div class="modal-title" id="detail-modal-title">Detalhes</div>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<div id="loading-bar" style="display:none;position:fixed;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--rose-deep),var(--rose),var(--rose-deep));background-size:200%;animation:shimmer 1.2s infinite;z-index:999;"></div>
+<style>@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}</style>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Supabase config ──────────────────────────────────────────────
+const SUPA_URL = 'https://yxekqenklqdyauizzhdu.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4ZWtxZW5rbHFkeWF1aXp6aGR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjkzNTgsImV4cCI6MjA5MzI0NTM1OH0.wt1RrzzchVEtchwpbI3iZAWgbvIUjS5SYifXzhh-aqI';
+
+const headers = {
+  'Content-Type': 'application/json',
+  'apikey': SUPA_KEY,
+  'Authorization': 'Bearer ' + SUPA_KEY,
+  'Prefer': 'return=representation'
+};
+
+async function dbGet(table) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?order=added_date.asc`, { headers });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbInsert(table, row) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}`, { method: 'POST', headers, body: JSON.stringify(row) });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function dbUpdate(table, id, patch) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'PATCH', headers, body: JSON.stringify(patch) });
+  if (!r.ok) throw new Error(await r.text());
+}
+async function dbDelete(table, id) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers });
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// Converte snake_case do banco → camelCase local
+function rowToCloth(r) {
+  return { id: r.id, name: r.name, category: r.category, imgData: r.img_data,
+    tags: r.tags || { clima:[], ocasiao:[], cor:[], estilo:[], material:[] },
+    notes: r.notes, wearCount: r.wear_count || 0, lastWorn: r.last_worn, addedDate: r.added_date };
+}
+function rowToOutfit(r) {
+  return { id: r.id, name: r.name, occasion: r.occasion, items: r.items || [], date: r.date };
+}
+// ────────────────────────────────────────────────────────────────
+
+let clothes = [];
+let outfits = [];
+let builderItems = [];
+let currentFilter = 'all';
+let currentClimaFilter = null;
+let currentSearch = '';
+let tempImgData = null;
+
+const EMOJIS = {
+  'Tops': '👕', 'Calças': '👖', 'Vestidos': '👗', 'Saias': '🩱',
+  'Casacos': '🧥', 'Shorts': '🩳', 'Macacão': '👘', 'Acessórios': '👜',
+  'Calçados': '👟', 'Lingerie': '🩲', 'Pijamas': '🌙'
+};
+
+function setLoading(on) {
+  const el = document.getElementById('loading-bar');
+  if (el) el.style.display = on ? 'block' : 'none';
+}
+
+async function loadAll() {
+  setLoading(true);
+  try {
+    const [cRows, oRows] = await Promise.all([dbGet('clothes'), dbGet('outfits')]);
+    clothes = cRows.map(rowToCloth);
+    outfits = oRows.map(rowToOutfit);
+  } catch(e) {
+    showToast('Erro ao carregar dados. Verifique a conexão. 🌸');
+    console.error(e);
+  }
+  setLoading(false);
+  renderClothes();
+  updateStats();
+}
+
+function showPageMobile(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (page === 'conjuntos') renderOutfits();
+  if (page === 'doacao') renderDonate();
+  if (page === 'montar') renderPicker();
+  if (page === 'roupas') renderClothes();
+}
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event.target.classList.add('active');
+  if (page === 'conjuntos') renderOutfits();
+  if (page === 'doacao') renderDonate();
+  if (page === 'montar') renderPicker();
+  if (page === 'roupas') renderClothes();
+}
+
+function getCategoryEmoji(cat) { return EMOJIS[cat] || '👗'; }
+
+function renderClothes() {
+  let filtered = clothes.filter(c => {
+    if (currentFilter !== 'all' && c.category !== currentFilter) return false;
+    if (currentClimaFilter && !(c.tags.clima||[]).some(t => t.includes(currentClimaFilter.split(' ').pop()))) return false;
+    if (currentSearch && !c.name.toLowerCase().includes(currentSearch.toLowerCase())) return false;
+    return true;
+  });
+  const grid = document.getElementById('clothes-grid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🌷</div><div class="empty-title">Nenhuma peça encontrada</div><div class="empty-text">Tente outros filtros ou adicione novas peças.</div></div>`;
+  } else {
+    grid.innerHTML = filtered.map(c => clothesCardHTML(c)).join('');
+  }
+  updateStats();
+}
+
+function clothesCardHTML(c) {
+  const wears = c.wearCount || 0;
+  const dotClass = wears === 0 ? 'very-low' : wears <= 2 ? 'low' : '';
+  const wearText = wears === 0 ? 'Nunca usada' : wears === 1 ? '1 uso' : `${wears} usos`;
+  const imgHTML = c.imgData
+    ? `<img src="${c.imgData}" class="card-img-real" alt="${c.name}">`
+    : `<span style="font-size:4rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1))">${getCategoryEmoji(c.category)}</span>`;
+  const climatags = (c.tags.clima||[]).slice(0,2).map(t=>`<span class="tag tag-clima">${t}</span>`).join('');
+  const ocasiotags = (c.tags.ocasiao||[]).slice(0,1).map(t=>`<span class="tag tag-ocasiao">${t}</span>`).join('');
+  return `<div class="clothes-card" onclick="openDetail('${c.id}')">
+    <div class="clothes-img-placeholder">${imgHTML}</div>
+    <div class="card-actions">
+      <button class="icon-btn" onclick="event.stopPropagation();markWear('${c.id}')" title="Registrar uso">✅</button>
+      <button class="icon-btn" onclick="event.stopPropagation();deleteClothes('${c.id}')" title="Remover">🗑️</button>
+    </div>
+    <div class="clothes-info">
+      <div class="clothes-name">${c.name}</div>
+      <div class="clothes-category">${c.category}</div>
+      <div class="clothes-tags">${climatags}${ocasiotags}</div>
+      <div class="wear-count"><div class="wear-dot ${dotClass}"></div>${wearText}</div>
+    </div>
+  </div>`;
+}
+
+function updateStats() {
+  document.getElementById('total-pecas').textContent = clothes.length;
+  document.getElementById('total-usadas').textContent = clothes.filter(c => (c.wearCount||0) > 0).length;
+  document.getElementById('total-conjuntos-stat').textContent = outfits.length;
+  document.getElementById('total-doacao').textContent = clothes.filter(c => (c.wearCount||0) <= 1).length;
+}
+
+function filterClothes(cat, btn) {
+  currentFilter = cat; currentClimaFilter = null;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderClothes();
+}
+
+function filterByClima(clima, btn) {
+  if (currentClimaFilter === clima) { currentClimaFilter = null; btn.classList.remove('active'); }
+  else {
+    currentClimaFilter = clima;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn').classList.add('active');
+    btn.classList.add('active');
+  }
+  renderClothes();
+}
+
+function searchClothes() { currentSearch = document.getElementById('search-input').value; renderClothes(); }
+
+function openAddModal() { document.getElementById('add-modal').classList.add('open'); clearAddForm(); }
+function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+function clearAddForm() {
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-cat').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('img-preview').style.display = 'none';
+  document.querySelectorAll('.tag-option').forEach(t => t.classList.remove('selected'));
+  tempImgData = null;
+}
+
+function toggleTag(el) { el.classList.toggle('selected'); }
+
+function getSelectedTags(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' .tag-option.selected')).map(el => el.textContent.trim());
+}
+
+function handleImgUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  // Resize to keep DB lean
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = e => {
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 800;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = h * MAX / w; w = MAX; }
+      else if (h > MAX) { w = w * MAX / h; h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      tempImgData = canvas.toDataURL('image/jpeg', 0.75);
+      const preview = document.getElementById('img-preview');
+      preview.src = tempImgData; preview.style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveClothes() {
+  const name = document.getElementById('f-name').value.trim();
+  const cat = document.getElementById('f-cat').value;
+  if (!name || !cat) { showToast('Preencha nome e categoria! 🌸'); return; }
+  showToast('Salvando... ⏳');
+  const row = {
+    id: 'c' + Date.now(), name, category: cat,
+    img_data: tempImgData || null,
+    tags: {
+      clima: getSelectedTags('clima-tags'), ocasiao: getSelectedTags('ocasiao-tags'),
+      cor: getSelectedTags('cor-tags'), estilo: getSelectedTags('estilo-tags'),
+      material: getSelectedTags('material-tags'),
+    },
+    notes: document.getElementById('f-notes').value.trim(),
+    wear_count: 0, added_date: new Date().toISOString()
+  };
+  try {
+    await dbInsert('clothes', row);
+    clothes.push(rowToCloth(row));
+    closeAddModal(); renderClothes();
+    showToast('Peça adicionada com sucesso! 🌸');
+  } catch(e) { showToast('Erro ao salvar. Tente novamente. 😢'); console.error(e); }
+}
+
+async function deleteClothes(id) {
+  if (!confirm('Remover esta peça do guarda-roupa?')) return;
+  try {
+    await dbDelete('clothes', id);
+    clothes = clothes.filter(c => c.id !== id);
+    renderClothes(); showToast('Peça removida 💔');
+  } catch(e) { showToast('Erro ao remover. 😢'); }
+}
+
+async function markWear(id) {
+  const c = clothes.find(x => x.id === id);
+  if (!c) return;
+  const newCount = (c.wearCount || 0) + 1;
+  const lastWorn = new Date().toISOString();
+  try {
+    await dbUpdate('clothes', id, { wear_count: newCount, last_worn: lastWorn });
+    c.wearCount = newCount; c.lastWorn = lastWorn;
+    renderClothes(); showToast('Uso registrado! ✅');
+  } catch(e) { showToast('Erro ao registrar uso. 😢'); }
+}
+
+function openDetail(id) {
+  const c = clothes.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('detail-modal-title').textContent = c.name;
+  const imgHTML = c.imgData
+    ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">`
+    : getCategoryEmoji(c.category);
+  const allTags = [
+    ...(c.tags.clima||[]).map(t=>`<span class="tag tag-clima">${t}</span>`),
+    ...(c.tags.ocasiao||[]).map(t=>`<span class="tag tag-ocasiao">${t}</span>`),
+    ...(c.tags.cor||[]).map(t=>`<span class="tag tag-cor">${t}</span>`),
+    ...(c.tags.estilo||[]).map(t=>`<span class="tag tag-estilo">${t}</span>`),
+    ...(c.tags.material||[]).map(t=>`<span class="tag tag-material">${t}</span>`),
+  ].join('');
+  const lastWorn = c.lastWorn ? new Date(c.lastWorn).toLocaleDateString('pt-BR') : 'Nunca';
+  const added = c.addedDate ? new Date(c.addedDate).toLocaleDateString('pt-BR') : '-';
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-layout">
+      <div class="detail-img">${imgHTML}</div>
+      <div>
+        <div class="detail-name">${c.name}</div>
+        <div class="detail-category">${c.category}</div>
+        <div class="detail-row"><div class="detail-key">Usos</div><div class="detail-val">${c.wearCount||0} vez(es)</div></div>
+        <div class="detail-row"><div class="detail-key">Último uso</div><div class="detail-val">${lastWorn}</div></div>
+        <div class="detail-row"><div class="detail-key">Adicionada</div><div class="detail-val">${added}</div></div>
+        ${c.notes ? `<div class="detail-row"><div class="detail-key">Notas</div><div class="detail-val" style="color:var(--text-muted)">${c.notes}</div></div>` : ''}
+        <div class="detail-row" style="margin-top:8px;"><div class="detail-key">Tags</div><div class="detail-val detail-tags">${allTags||'<span style="color:var(--text-muted)">Nenhuma</span>'}</div></div>
+        <div style="margin-top:16px;">
+          <button class="wear-btn" onclick="markWear('${c.id}');closeDetailModal()">✅ Registrar Uso</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('detail-modal').classList.add('open');
+}
+function closeDetailModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+/* CONJUNTOS */
+function renderOutfits() {
+  const grid = document.getElementById('outfits-grid');
+  if (outfits.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✨</div><div class="empty-title">Nenhum conjunto ainda!</div><div class="empty-text">Vá em "Montar Look" para criar seus primeiros conjuntos.</div></div>`;
+    return;
+  }
+  grid.innerHTML = outfits.map(o => {
+    const pieces = (o.items||[]).map(id => clothes.find(c => c.id === id)).filter(Boolean);
+    const piecesHTML = pieces.map(p => {
+      const img = p.imgData ? `<img src="${p.imgData}" style="width:100%;height:100%;object-fit:cover;">` : getCategoryEmoji(p.category);
+      return `<div class="outfit-piece-thumb">${img}</div>`;
+    }).join('');
+    return `<div class="outfit-card">
+      <div class="outfit-pieces">${piecesHTML || '<div style="color:var(--text-muted);font-size:0.8rem;padding:8px;">Peças removidas</div>'}</div>
+      <div class="outfit-info">
+        <div class="outfit-name">${o.name}</div>
+        <div class="outfit-occasion">${o.occasion || 'Sem ocasião definida'}</div>
+        <div style="margin-top:10px;">
+          <button class="btn-secondary" style="font-size:0.78rem;padding:5px 12px;" onclick="deleteOutfit('${o.id}')">Remover</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function deleteOutfit(id) {
+  try {
+    await dbDelete('outfits', id);
+    outfits = outfits.filter(o => o.id !== id);
+    renderOutfits(); updateStats(); showToast('Conjunto removido 💔');
+  } catch(e) { showToast('Erro ao remover. 😢'); }
+}
+
+/* BUILDER */
+function renderPicker() {
+  const grid = document.getElementById('picker-grid');
+  if (clothes.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-text" style="font-size:0.85rem;">Adicione roupas ao guarda-roupa primeiro!</div></div>`;
+    return;
+  }
+  grid.innerHTML = clothes.map(c => {
+    const inOutfit = builderItems.includes(c.id);
+    const img = c.imgData ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;">` : getCategoryEmoji(c.category);
+    return `<div class="picker-item ${inOutfit ? 'in-outfit' : ''}" onclick="toggleBuilder('${c.id}')">
+      <div class="picker-item-img">${img}</div>
+      <div class="picker-item-name">${c.name}</div>
+    </div>`;
+  }).join('');
+  renderBuilderPreview();
+}
+
+function toggleBuilder(id) {
+  if (builderItems.includes(id)) builderItems = builderItems.filter(x => x !== id);
+  else builderItems.push(id);
+  renderPicker();
+}
+
+function renderBuilderPreview() {
+  const preview = document.getElementById('builder-preview');
+  if (builderItems.length === 0) {
+    preview.innerHTML = `<div style="width:100%;text-align:center;color:var(--text-muted);font-size:0.8rem;padding-top:20px;">Clique nas peças ao lado para adicionar ao look ✨</div>`;
+    return;
+  }
+  preview.innerHTML = builderItems.map(id => {
+    const c = clothes.find(x => x.id === id);
+    if (!c) return '';
+    const img = c.imgData ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;">` : getCategoryEmoji(c.category);
+    return `<div class="builder-piece">
+      <div class="builder-piece-img">${img}</div>
+      <div class="builder-piece-label">${c.name}</div>
+      <button class="builder-remove" onclick="event.stopPropagation();toggleBuilder('${c.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function clearBuilder() { builderItems = []; renderPicker(); }
+
+async function saveOutfit() {
+  if (builderItems.length < 2) { showToast('Adicione pelo menos 2 peças! 👗'); return; }
+  const name = document.getElementById('outfit-name').value.trim() || 'Look sem nome';
+  const occasion = document.getElementById('outfit-occasion').value;
+  const row = { id: 'o' + Date.now(), name, occasion, items: [...builderItems], date: new Date().toISOString() };
+  try {
+    await dbInsert('outfits', row);
+    outfits.push(rowToOutfit(row));
+    clearBuilder();
+    document.getElementById('outfit-name').value = '';
+    document.getElementById('outfit-occasion').value = '';
+    updateStats(); showToast('Look salvo com sucesso! ✨');
+  } catch(e) { showToast('Erro ao salvar look. 😢'); console.error(e); }
+}
+
+/* DOAÇÃO */
+function renderDonate() {
+  const list = document.getElementById('donate-list');
+  const candidates = clothes.filter(c => (c.wearCount||0) <= 1).sort((a,b) => (a.wearCount||0)-(b.wearCount||0));
+  if (candidates.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🌸</div><div class="empty-title">Tudo está sendo usado!</div><div class="empty-text">Quando tiver peças pouco utilizadas, elas aparecerão aqui.</div></div>`;
+    return;
+  }
+  list.innerHTML = candidates.map(c => {
+    const img = c.imgData ? `<img src="${c.imgData}" style="width:100%;height:100%;object-fit:cover;" alt="${c.name}">` : getCategoryEmoji(c.category);
+    const wears = c.wearCount || 0;
+    const badge = wears === 0 ? `<span class="donate-badge badge-never">Nunca usada</span>` : `<span class="donate-badge badge-rarely">Raramente usada</span>`;
+    const lastWorn = c.lastWorn ? `Último uso: ${new Date(c.lastWorn).toLocaleDateString('pt-BR')}` : 'Nunca foi usada';
+    return `<div class="donate-item">
+      <div class="donate-thumb">${img}</div>
+      <div class="donate-info">
+        <div class="donate-name">${c.name}</div>
+        <div class="donate-detail">${c.category} · ${lastWorn}</div>
+        <div class="wear-track">
+          <div class="wear-bar"><div class="wear-bar-fill" style="width:${Math.min(wears*20,100)}%"></div></div>
+          <span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap">${wears} uso(s)</span>
+        </div>
+      </div>
+      ${badge}
+    </div>`;
+  }).join('');
+  document.getElementById('total-doacao').textContent = candidates.length;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.getElementById('add-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddModal(); });
+document.getElementById('detail-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetailModal(); });
+
+// Init
+loadAll();
+</script>
+</body>
+</html>
